@@ -2,7 +2,7 @@ const unified = require('../coolAutomation/unified')
 let Characteristic, Service
 		const FAHRENHEIT_UNIT = 'F'
 		const CELSIUS_UNIT = 'C'
-
+		const FAHRENHEIT_MIN_STEP = 0.1
 class AirConditioner {
 	constructor(device, hubConfig, platform) {
 
@@ -35,6 +35,9 @@ class AirConditioner {
 		this.maxTemp = platform.maxTemp
 		this.filterService = deviceInfo.filterService
 		this.capabilities = unified.capabilities(platform, device)
+		this.allowCelsiusHalfDegrees = platform.allowCelsiusHalfDegrees
+
+		const CELSIUS_MIN_STEP = this.allowCelsiusHalfDegrees ? 0.5 : 1
 
 		// Initialize state
 		this.state = this.cachedState.devices[this.id] = unified.acState(this, device)
@@ -132,7 +135,7 @@ class AirConditioner {
 				.setProps({
 					minValue: this.capabilities.COOL.temperatures[CELSIUS_UNIT].min,
 					maxValue: this.capabilities.COOL.temperatures[CELSIUS_UNIT].max,
-					minStep: this.usesFahrenheit ? 0.1 : 1
+					minStep: this.usesFahrenheit ? FAHRENHEIT_MIN_STEP : CELSIUS_MIN_STEP
 				})
 				.on('get', this.stateManager.get.CoolingThresholdTemperature)
 				.on('set', this.stateManager.set.CoolingThresholdTemperature)
@@ -144,7 +147,7 @@ class AirConditioner {
 				.setProps({
 					minValue: this.capabilities.HEAT.temperatures[CELSIUS_UNIT].min,
 					maxValue: this.capabilities.HEAT.temperatures[CELSIUS_UNIT].max,
-					minStep: this.usesFahrenheit ? 0.1 : 1
+					minStep: this.usesFahrenheit ? FAHRENHEIT_MIN_STEP : CELSIUS_MIN_STEP
 				})
 				.on('get', this.stateManager.get.HeatingThresholdTemperature)
 				.on('set', this.stateManager.set.HeatingThresholdTemperature)
@@ -156,7 +159,7 @@ class AirConditioner {
 				.setProps({
 					minValue: this.capabilities.AUTO.temperatures[CELSIUS_UNIT].min,
 					maxValue: this.capabilities.AUTO.temperatures[CELSIUS_UNIT].max,
-					minStep: this.usesFahrenheit ? 0.1 : 1
+					minStep: this.usesFahrenheit ? FAHRENHEIT_MIN_STEP : CELSIUS_MIN_STEP
 				})
 				.on('get', this.stateManager.get.CoolingThresholdTemperature)
 				.on('set', this.stateManager.set.CoolingThresholdTemperature)
@@ -169,7 +172,7 @@ class AirConditioner {
 				.setProps({
 					minValue: this.capabilities.AUTO.temperatures[CELSIUS_UNIT].min,
 					maxValue: this.capabilities.AUTO.temperatures[CELSIUS_UNIT].max,
-					minStep: this.usesFahrenheit ? 0.1 : 1
+					minStep: this.usesFahrenheit ? FAHRENHEIT_MIN_STEP : CELSIUS_MIN_STEP
 				})
 				.on('get', this.stateManager.get.HeatingThresholdTemperature)
 				.on('set', this.stateManager.set.HeatingThresholdTemperature)

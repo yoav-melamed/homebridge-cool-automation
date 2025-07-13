@@ -41,6 +41,7 @@ class CoolAutomationPlatform {
 		this.highFspeed = config['highFspeed']
 		this.topFspeed = config['topFspeed']
 		this.autoFspeed = config['autoFspeed']
+		this.allowCelsiusHalfDegrees = config['allowCelsiusHalfDegrees'] || false
 
 		// Define debug method
 		this.log.easyDebug = (...content) => {

@@ -37,6 +37,7 @@ class AirConditioner {
 		this.capabilities = unified.capabilities(platform, device)
 		this.allowCelsiusHalfDegrees = platform.allowCelsiusHalfDegrees
 		this.celsiusMinStep = this.allowCelsiusHalfDegrees ? 0.5 : 1
+		this.log.easyDebug(`${this.name} -> Celsius half degrees enabled: ${this.allowCelsiusHalfDegrees}, usesFahrenheit: ${this.usesFahrenheit}, celsiusMinStep: ${this.celsiusMinStep}`)
 
 		// Initialize state
 		this.state = this.cachedState.devices[this.id] = unified.acState(this, device)

@@ -125,8 +125,8 @@
                 "default": false,
                 "required": false
             },
-            "allowCelsiusHalfDegrees": {
-                "title": "Allow Celsius Half Degrees",
+            "celsiusHalfSteps": {
+                "title": "Celsius Half Steps",
                 "description": "When checked, the plugin will allow setting temperatures in half degrees (e.g., 20.5°C).",
                 "type": "boolean",
                 "default": false,
@@ -155,7 +155,7 @@
 			"description": "Don't change these, unless you understand what you're doing.",
 			"items": [
                 "debug",
-                "allowCelsiusHalfDegrees",
+                "celsiusHalfSteps",
 				"statePollingInterval",
 				"minTemperature",
 				"maxTemperature",

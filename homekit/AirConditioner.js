@@ -35,9 +35,8 @@ class AirConditioner {
 		this.maxTemp = platform.maxTemp
 		this.filterService = deviceInfo.filterService
 		this.capabilities = unified.capabilities(platform, device)
-		this.allowCelsiusHalfDegrees = platform.allowCelsiusHalfDegrees
-		this.celsiusMinStep = this.allowCelsiusHalfDegrees ? 0.5 : 1
-		this.log.easyDebug(`${this.name} -> Celsius half degrees enabled: ${this.allowCelsiusHalfDegrees}, usesFahrenheit: ${this.usesFahrenheit}, celsiusMinStep: ${this.celsiusMinStep}`)
+		this.celsiusHalfSteps = platform.celsiusHalfSteps
+		this.celsiusMinStep = this.celsiusHalfSteps ? 0.5 : 1
 
 		// Initialize state
 		this.state = this.cachedState.devices[this.id] = unified.acState(this, device)
@@ -131,8 +130,7 @@ class AirConditioner {
 			.updateValue(this.state.currentTemperature)
 
 		if (this.capabilities.COOL) {
-			const coolingThreshold = this.HeaterCoolerService.getCharacteristic(Characteristic.CoolingThresholdTemperature)
-			coolingThreshold
+			this.HeaterCoolerService.getCharacteristic(Characteristic.CoolingThresholdTemperature)
 				.setProps({
 					minValue: this.capabilities.COOL.temperatures[CELSIUS_UNIT].min,
 					maxValue: this.capabilities.COOL.temperatures[CELSIUS_UNIT].max,
@@ -141,12 +139,10 @@ class AirConditioner {
 				.on('get', this.stateManager.get.CoolingThresholdTemperature)
 				.on('set', this.stateManager.set.CoolingThresholdTemperature)
 				.updateValue(this.state.targetTemperature)
-			this.log.easyDebug(`${this.name} -> CoolingThresholdTemperature minStep set to ${coolingThreshold.props.minStep}`)
 		}
 
 		if (this.capabilities.HEAT) {
-			const heatingThreshold = this.HeaterCoolerService.getCharacteristic(Characteristic.HeatingThresholdTemperature)
-			heatingThreshold
+			this.HeaterCoolerService.getCharacteristic(Characteristic.HeatingThresholdTemperature)
 				.setProps({
 					minValue: this.capabilities.HEAT.temperatures[CELSIUS_UNIT].min,
 					maxValue: this.capabilities.HEAT.temperatures[CELSIUS_UNIT].max,
@@ -155,12 +151,10 @@ class AirConditioner {
 				.on('get', this.stateManager.get.HeatingThresholdTemperature)
 				.on('set', this.stateManager.set.HeatingThresholdTemperature)
 				.updateValue(this.state.targetTemperature)
-			this.log.easyDebug(`${this.name} -> HeatingThresholdTemperature minStep set to ${heatingThreshold.props.minStep}`)
 		}
 
 		if (this.capabilities.AUTO && !this.capabilities.COOL && this.capabilities.AUTO.temperatures) {
-			const coolingThreshold = this.HeaterCoolerService.getCharacteristic(Characteristic.CoolingThresholdTemperature)
-			coolingThreshold
+			this.HeaterCoolerService.getCharacteristic(Characteristic.CoolingThresholdTemperature)
 				.setProps({
 					minValue: this.capabilities.AUTO.temperatures[CELSIUS_UNIT].min,
 					maxValue: this.capabilities.AUTO.temperatures[CELSIUS_UNIT].max,
@@ -169,13 +163,11 @@ class AirConditioner {
 				.on('get', this.stateManager.get.CoolingThresholdTemperature)
 				.on('set', this.stateManager.set.CoolingThresholdTemperature)
 				.updateValue(this.state.targetTemperature)
-			this.log.easyDebug(`${this.name} -> AUTO CoolingThresholdTemperature minStep set to ${coolingThreshold.props.minStep}`)
 
 		}
 
 		if (this.capabilities.AUTO && !this.capabilities.HEAT && this.capabilities.AUTO.temperatures) {
-			const heatingThreshold = this.HeaterCoolerService.getCharacteristic(Characteristic.HeatingThresholdTemperature)
-			heatingThreshold
+			this.HeaterCoolerService.getCharacteristic(Characteristic.HeatingThresholdTemperature)
 				.setProps({
 					minValue: this.capabilities.AUTO.temperatures[CELSIUS_UNIT].min,
 					maxValue: this.capabilities.AUTO.temperatures[CELSIUS_UNIT].max,
@@ -184,7 +176,6 @@ class AirConditioner {
 				.on('get', this.stateManager.get.HeatingThresholdTemperature)
 				.on('set', this.stateManager.set.HeatingThresholdTemperature)
 				.updateValue(this.state.targetTemperature)
-			this.log.easyDebug(`${this.name} -> AUTO HeatingThresholdTemperature minStep set to ${heatingThreshold.props.minStep}`)
 		}
 
 		// this.HeaterCoolerService.getCharacteristic(Characteristic.TemperatureDisplayUnits)

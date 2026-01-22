@@ -34,7 +34,7 @@
       "topFspeed": false,
       "autoFspeed": true,
       "debug": false,
-      "allowCelsiusHalfDegrees": false
+      "celsiusHalfSteps": false
     }
   ],
   "accessories": []

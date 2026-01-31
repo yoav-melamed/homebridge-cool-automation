@@ -45,22 +45,28 @@ class AirConditioner {
 		this.state = new Proxy(this.state, StateHandler)
 		this.stateManager = require('./StateManager')(this, platform)
 
-		// Generate UUID using Homebridge API
-		this.UUID = this.api.hap.uuid.generate(this.id.toString())
-		this.accessory = hubConfig.cachedAccessories.find(accessory => accessory.UUID === this.UUID)
+		// Generate UUID using Homebridge API.
+		// Include celsiusHalfSteps so HomeKit treats it as a new accessory when this setting changes.
+		const uuidKey = `${this.id}:${this.celsiusHalfSteps ? 'celsius-0.5' : 'celsius-1'}`
+		this.UUID = this.api.hap.uuid.generate(uuidKey)
 
-		// Force HomeKit to refresh characteristic metadata when celsiusHalfSteps changes.
-		if (this.accessory && this.accessory.context?.celsiusHalfSteps !== this.celsiusHalfSteps) {
+		// If an accessory exists for this device with a different UUID, remove it to avoid duplicates.
+		const existingForDevice = hubConfig.cachedAccessories.find(accessory =>
+			accessory.context?.type === 'AirConditioner' &&
+			accessory.context?.deviceId === this.id
+		)
+		if (existingForDevice && existingForDevice.UUID !== this.UUID) {
 			this.log.easyDebug(
-				`celsiusHalfSteps changed for ${this.roomName} (was ${this.accessory.context?.celsiusHalfSteps}, now ${this.celsiusHalfSteps}); re-registering accessory`
+				`celsiusHalfSteps changed for ${this.roomName}; re-registering accessory to refresh HomeKit metadata`
 			)
-			platform.api.unregisterPlatformAccessories(platform.PLUGIN_NAME, platform.PLATFORM_NAME, [this.accessory])
-			const index = hubConfig.cachedAccessories.indexOf(this.accessory)
+			platform.api.unregisterPlatformAccessories(platform.PLUGIN_NAME, platform.PLATFORM_NAME, [existingForDevice])
+			const index = hubConfig.cachedAccessories.indexOf(existingForDevice)
 			if (index > -1) {
 				hubConfig.cachedAccessories.splice(index, 1)
 			}
-			this.accessory = null
 		}
+
+		this.accessory = hubConfig.cachedAccessories.find(accessory => accessory.UUID === this.UUID)
 
 		if (!this.accessory) {
 			this.log(`Creating New ${platform.PLATFORM_NAME} ${this.type} Accessory in the ${this.roomName}`)

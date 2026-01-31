@@ -49,12 +49,26 @@ class AirConditioner {
 		this.UUID = this.api.hap.uuid.generate(this.id.toString())
 		this.accessory = hubConfig.cachedAccessories.find(accessory => accessory.UUID === this.UUID)
 
+		// Force HomeKit to refresh characteristic metadata when celsiusHalfSteps changes.
+		if (this.accessory && this.accessory.context?.celsiusHalfSteps !== this.celsiusHalfSteps) {
+			this.log.easyDebug(
+				`celsiusHalfSteps changed for ${this.roomName} (was ${this.accessory.context?.celsiusHalfSteps}, now ${this.celsiusHalfSteps}); re-registering accessory`
+			)
+			platform.api.unregisterPlatformAccessories(platform.PLUGIN_NAME, platform.PLATFORM_NAME, [this.accessory])
+			const index = hubConfig.cachedAccessories.indexOf(this.accessory)
+			if (index > -1) {
+				hubConfig.cachedAccessories.splice(index, 1)
+			}
+			this.accessory = null
+		}
+
 		if (!this.accessory) {
 			this.log(`Creating New ${platform.PLATFORM_NAME} ${this.type} Accessory in the ${this.roomName}`)
 			this.accessory = new this.api.platformAccessory(this.name, this.UUID)
 			this.accessory.context.type = this.type
 			this.accessory.context.deviceId = this.id
 			this.accessory.context.hubNumber = this.hubNumber
+			this.accessory.context.celsiusHalfSteps = this.celsiusHalfSteps
 
 			hubConfig.cachedAccessories.push(this.accessory)
 			// Register the accessory with Homebridge
@@ -62,6 +76,7 @@ class AirConditioner {
 		}
 
 		this.accessory.context.roomName = this.roomName
+		this.accessory.context.celsiusHalfSteps = this.celsiusHalfSteps
 
 		let informationService = this.accessory.getService(Service.AccessoryInformation)
 
